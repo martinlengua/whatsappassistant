@@ -1,1 +1,6 @@
 flask
+sounddevice
+assist
+vosk
+openai
+pygame
