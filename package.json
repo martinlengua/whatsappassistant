@@ -1,0 +1,29 @@
+{
+  "name": "asistentewhatsapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node -r esm -r ts-node/register src/app.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "@types/express-ws": "^3.0.5",
+    "@types/node": "^22.8.2",
+    "@types/ws": "^8.5.12",
+    "dotenv": "^16.4.5",
+    "elevenlabs": "^0.17.1",
+    "esm": "^3.2.25",
+    "express": "^4.21.1",
+    "express-ws": "^5.0.2",
+    "tsx": "^4.19.2",
+    "twilio": "^5.3.5",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}
