@@ -17,7 +17,7 @@ import requests
 
 def test_webhook():
     # URL for the locally hosted webhook (adjust port if necessary)
-    url = "https://f2b5-136-244-112-118.ngrok-free.app/webhook"
+    url = "https://app-assistant-wsp.azurewebsites.net/webhook"
 
     # Mock data simulating a Twilio WhatsApp message
     data = {

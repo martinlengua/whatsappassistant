@@ -4,8 +4,8 @@ from twilio.rest import Client
 import openai
 from assist import Assistant
 import subprocess
+from openai import OpenAI
 #librerias para TTS
-#from openai import OpenAI
 #import vosk
 #import sounddevice as sd
 import queue
