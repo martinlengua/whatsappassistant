@@ -1,20 +1,13 @@
+import logging
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.rest import Client
-import openai
-from assist import Assistant
-import subprocess
-from openai import OpenAI
-#librerias para TTS
-#import vosk
-#import sounddevice as sd
-import queue
-import json
-import time
-import assist
 import os
-import re
 from dotenv import load_dotenv
+from assist import Assistant
+
+# Configurar el logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
@@ -38,15 +31,16 @@ def generate_response(incoming_message):
     """
     Uses OpenAI to generate a response based on the received message.
     """
-
+    logging.info(f"Received message: {incoming_message}")
     respuesta = assistant.ask_question_memory(incoming_message)
-    print(respuesta)
-    return respuesta;
+    logging.info(f"Generated response: {respuesta}")
+    return respuesta
 
 def send_response(reply, from_number):
     """
     Sends the response back to the sender's WhatsApp number.
     """
+    logging.info(f"Sending response to {from_number}: {reply}")
     client.messages.create(
         body=reply,
         from_=twilio_number,
@@ -58,6 +52,9 @@ def webhook():
     incoming_message = request.form.get("Body", "")
     from_number = request.form.get("From", "")
 
+    # Log incoming message and sender info
+    logging.info(f"Incoming message from {from_number}: {incoming_message}")
+
     # Generate a response based on the incoming message
     reply = generate_response(incoming_message)
 
@@ -67,6 +64,11 @@ def webhook():
     # Respond with TwiML to keep the conversation active
     response = MessagingResponse()
     response.message(reply)
+
+    # Log response sent back to Twilio
+    logging.info(f"Response sent back to Twilio: {reply}")
+    
+    return str(response)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=3000)
