@@ -43,7 +43,7 @@ jobs:
           az webapp config container set \
             --name app-assistant-wsp \
             --resource-group rg-strategia-app \
-            --docker-custom-image-name acrstrategiaapp.azurecr.io/app-strategia-wsp:v2 \
+            --docker-custom-image-name $REGISTRY/$IMAGE_NAME:$TAG \
             --docker-registry-server-url https://acrstrategiaapp.azurecr.io \
             --docker-registry-server-user acrstrategiaapp \
             --docker-registry-server-password oJC8SIrSBSXydRCDvB5lXEaTM059L/PvVD9v9qzjgy+ACRDbWoRY
