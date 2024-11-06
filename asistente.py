@@ -24,7 +24,7 @@ twilio_number = "whatsapp:+51997720677"
 client = Client(account_sid, auth_token)
 
 # Inicializar el asistente con tus datos
-assistant = Assistant(api_key="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", assistant_id="asst_63ynZRFDr1YrSYgpJTXVKWXW", thread_id="thread_oyuWJQph9E1oaIHFrvDT7plu")
+assistant = Assistant(api_key="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", assistant_id="asst_63ynZRFDr1YrSYgpJTXVKWXW", thread_id="thread_oyuWJQph9E1oaIHFrvDT7plu")
 
 def generate_response(incoming_message):
     """
