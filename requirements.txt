@@ -1,13 +1,13 @@
 flask
 sounddevice
-assist
-vosk
-openai
-pygame
-google-auth 
-google-auth-oauthlib 
-google-auth-httplib2 
-google-api-python-client
 azure-identity 
 requests
 twilio
+pygame
+openai
+#assist
+# google-auth 
+# google-auth-oauthlib 
+# google-auth-httplib2 
+# google-api-python-client
+# vosk

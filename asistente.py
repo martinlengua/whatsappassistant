@@ -13,7 +13,6 @@ import time
 import assist
 import os
 import re
-from assist import Assistant
 
 app = Flask(__name__)
 
