@@ -32,3 +32,17 @@ jobs:
         run: |
           docker build -t $REGISTRY/$IMAGE_NAME:$TAG .
           docker push $REGISTRY/$IMAGE_NAME:$TAG
+
+
+      - name: Log in to Azure Container Registry
+        env:
+          REGISTRY: acrstrategiaapp.azurecr.io
+          IMAGE_NAME: app-strategia-wsp
+          TAG: latest      
+        run: |
+          az containerapp update \
+          --name ca-assistant-wsp \
+          --resource-group rg-strategia-app \
+          --image $REGISTRY/$IMAGE_NAME:$TAG
+
+          
