@@ -10,7 +10,7 @@ class Assistant:
         self.thread_id = thread_id
         self.assistant = self.client.beta.assistants.retrieve(assistant_id)
         self.thread = self.client.beta.threads.retrieve(thread_id)
-        mixer.init()
+        #mixer.init()
 
     def ask_question_memory(self, question):
         """Envía una pregunta al asistente y espera la respuesta con memoria de contexto."""

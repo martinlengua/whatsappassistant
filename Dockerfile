@@ -1,6 +1,9 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12-slim
 
+# Instala las dependencias necesarias para pygame
+RUN apt-get update && apt-get install -y libasound2 libsdl2-mixer-2.0-0 libglib2.0-0 pulseaudio alsa-utils && rm -rf /var/lib/apt/lists/*
+
 # Set the working directory in the container
 WORKDIR /app
 
