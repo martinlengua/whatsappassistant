@@ -14,6 +14,7 @@ import time
 import assist
 import os
 import re
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
