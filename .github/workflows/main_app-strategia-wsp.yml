@@ -26,9 +26,9 @@ jobs:
 
       - name: Build and push Docker image
         env:
-          REGISTRY: acrstrategiaapp.azurecr.io.azurecr.io
+          REGISTRY: acrstrategiaapp.azurecr.io
           IMAGE_NAME: app-strategia-wsp
           TAG: latest
         run: |
-          docker build -t $REGISTRY/$IMAGE_NAME:$TAG .
+          docker build --platform linux/amd64 -t $REGISTRY/$IMAGE_NAME:$TAG .
           docker push $REGISTRY/$IMAGE_NAME:$TAG
