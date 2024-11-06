@@ -1,4 +1,4 @@
-name: Build and push Docker image to ACR
+name: Build and push Assistant Docker image to ACR
 
 on:
   push:
