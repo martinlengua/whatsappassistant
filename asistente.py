@@ -16,16 +16,23 @@ import os
 import re
 from dotenv import load_dotenv
 
+# Carga las variables de entorno desde el archivo .env
+load_dotenv()
+
 app = Flask(__name__)
 
-# Configure your Twilio credentials
-account_sid = "AC37522f855bedd37c5c96bc2e2d4cf5fb"
-auth_token = "f1c431bfb8b4ff6b2cecbec87c7e4424"
-twilio_number = "whatsapp:+51997720677"
+# Configura tus credenciales usando variables de entorno
+account_sid = os.getenv("ACCOUNT_SID")
+auth_token = os.getenv("AUTH_TOKEN")
+twilio_number = os.getenv("TWILIO_NUMBER")
 client = Client(account_sid, auth_token)
 
-# Inicializar el asistente con tus datos
-assistant = Assistant(api_key="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", assistant_id="asst_63ynZRFDr1YrSYgpJTXVKWXW", thread_id="thread_oyuWJQph9E1oaIHFrvDT7plu")
+# Inicializar el asistente con los datos desde las variables de entorno
+assistant = Assistant(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    assistant_id=os.getenv("ASSISTANT_ID"),
+    thread_id=os.getenv("THREAD_ID")
+)
 
 def generate_response(incoming_message):
     """
