@@ -5,6 +5,7 @@ requests
 twilio
 pygame
 openai
+python-dotenv
 #assist
 # google-auth 
 # google-auth-oauthlib 
