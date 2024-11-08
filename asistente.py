@@ -1,11 +1,13 @@
 import logging
+import time
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.rest import Client
 import os
+import threading
+import queue
 from dotenv import load_dotenv
 from assist import Assistant
-from service_bus_client import ServiceBusHandler
 
 # Configurar el logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -13,7 +15,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
 
-service_bus = ServiceBusHandler()
 app = Flask(__name__)
 
 # Configura tus credenciales usando variables de entorno
@@ -29,9 +30,12 @@ assistant = Assistant(
     thread_id=os.getenv("THREAD_ID")
 )
 
+# Crear una cola para manejar los mensajes entrantes
+message_queue = queue.Queue()
+
 def generate_response(incoming_message):
     """
-    Uses OpenAI to generate a response based on the received message.
+    Usa OpenAI para generar una respuesta basada en el mensaje recibido.
     """
     logging.info(f"Received message: {incoming_message}")
     respuesta = assistant.ask_question_memory(incoming_message)
@@ -40,7 +44,7 @@ def generate_response(incoming_message):
 
 def send_response(reply, from_number):
     """
-    Sends the response back to the sender's WhatsApp number.
+    Envía la respuesta de vuelta al número de WhatsApp del remitente.
     """
     logging.info(f"Sending response to {from_number}: {reply}")
     client.messages.create(
@@ -48,6 +52,32 @@ def send_response(reply, from_number):
         from_=twilio_number,
         to=from_number
     )
+
+def process_message_queue():
+    """
+    Procesa los mensajes en la cola, esperando 5 segundos solo si la cola está vacía.
+    """
+    while True:
+        try:
+            # Esperar hasta que haya un mensaje en la cola o el tiempo de espera se complete
+            from_number, incoming_message = message_queue.get(timeout=5)
+
+            # Generar la respuesta para el mensaje inmediatamente
+            reply = generate_response(incoming_message)
+            
+            # Enviar la respuesta de vuelta al usuario
+            send_response(reply, from_number)
+            
+            # Marcar el mensaje como procesado
+            message_queue.task_done()
+
+        except queue.Empty:
+            # Si la cola está vacía, esperar 5 segundos antes de revisar nuevamente
+            logging.info("No hay mensajes en la cola. Esperando 5 segundos...")
+            time.sleep(5)
+
+# Crear un hilo separado para procesar la cola de mensajes
+threading.Thread(target=process_message_queue, daemon=True).start()
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -57,18 +87,13 @@ def webhook():
     # Log incoming message and sender info
     logging.info(f"Incoming message from {from_number}: {incoming_message}")
 
-    # Generate a response based on the incoming message
-    reply = generate_response(incoming_message)
+    # Añadir el mensaje a la cola para ser procesado
+    message_queue.put((from_number, incoming_message))
 
-    service_bus.send_message(f"{from_number}|{incoming_message}")
-
-    # Respond with TwiML to keep the conversation active
+    # Responder inmediatamente para confirmar recepción a Twilio
     response = MessagingResponse()
-    response.message("Recibido, procesando tu mensaje...")
+    response.message("Tu mensaje ha sido recibido. Procesaremos tu solicitud en breve.")
 
-    # # Log response sent back to Twilio
-    # logging.info(f"Response sent back to Twilio: {reply}")
-    
     return str(response)
 
 if __name__ == "__main__":
