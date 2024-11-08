@@ -92,7 +92,6 @@ def webhook():
 
     # Responder inmediatamente para confirmar recepción a Twilio
     response = MessagingResponse()
-    response.message("Tu mensaje ha sido recibido. Procesaremos tu solicitud en breve.")
 
     return str(response)
 
