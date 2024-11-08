@@ -68,7 +68,7 @@ def webhook():
     # Log response sent back to Twilio
     logging.info(f"Response sent back to Twilio: {reply}")
     
-    return str(response)
+    # return str(response)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=3000)
