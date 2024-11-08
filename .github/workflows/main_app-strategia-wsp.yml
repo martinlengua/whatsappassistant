@@ -38,7 +38,7 @@ jobs:
           docker push $REGISTRY/$IMAGE_NAME:$TAG
 
 
-      - name: Log in to Azure Container Registry
+      - name: Update Assistant application
         env:
           REGISTRY: acrstrategiaapp.azurecr.io
           IMAGE_NAME: app-strategia-wsp
