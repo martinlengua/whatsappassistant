@@ -58,8 +58,8 @@ def webhook():
     # Generate a response based on the incoming message
     reply = generate_response(incoming_message)
 
-    # Send the response back to the user
-    send_response(reply, from_number)
+    # # Send the response back to the user
+    # send_response(reply, from_number)
 
     # Respond with TwiML to keep the conversation active
     response = MessagingResponse()
