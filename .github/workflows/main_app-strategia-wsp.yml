@@ -24,11 +24,15 @@ jobs:
         run: |
           az acr login --name acrstrategiaapp.azurecr.io
 
+      - name: Define Tag
+        id: vars
+        run: echo "TAG=${{ github.run_number }}-${{ github.sha }}" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         env:
           REGISTRY: acrstrategiaapp.azurecr.io
           IMAGE_NAME: app-strategia-wsp
-          TAG: latest
+          TAG: ${{ env.TAG }}
         run: |
           docker build -t $REGISTRY/$IMAGE_NAME:$TAG .
           docker push $REGISTRY/$IMAGE_NAME:$TAG
@@ -38,7 +42,7 @@ jobs:
         env:
           REGISTRY: acrstrategiaapp.azurecr.io
           IMAGE_NAME: app-strategia-wsp
-          TAG: latest      
+          TAG: ${{ env.TAG }}      
         run: |
           az webapp config container set \
             --name app-assistant-wsp \
