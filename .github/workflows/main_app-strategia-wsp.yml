@@ -51,3 +51,15 @@ jobs:
             --docker-registry-server-url https://acrstrategiaapp.azurecr.io \
             --docker-registry-server-user acrstrategiaapp \
             --docker-registry-server-password oJC8SIrSBSXydRCDvB5lXEaTM059L/PvVD9v9qzjgy+ACRDbWoRY
+
+      - name: Stop Azure Web App
+        run: |
+          az webapp stop \
+            --name app-assistant-wsp \
+            --resource-group rg-strategia-app
+
+      - name: Start Azure Web App
+        run: |
+          az webapp start \
+            --name app-assistant-wsp \
+            --resource-group rg-strategia-app

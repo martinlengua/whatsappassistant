@@ -65,8 +65,8 @@ def webhook():
     response = MessagingResponse()
     response.message(reply)
 
-    # Log response sent back to Twilio
-    logging.info(f"Response sent back to Twilio: {reply}")
+    # # Log response sent back to Twilio
+    # logging.info(f"Response sent back to Twilio: {reply}")
     
     # return str(response)
 
