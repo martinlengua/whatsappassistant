@@ -6,6 +6,7 @@ twilio
 pygame
 openai
 python-dotenv
+azure-servicebus 
 #assist
 # google-auth 
 # google-auth-oauthlib 

@@ -5,6 +5,7 @@ from twilio.rest import Client
 import os
 from dotenv import load_dotenv
 from assist import Assistant
+from service_bus_client import ServiceBusHandler
 
 # Configurar el logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,6 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
 
+service_bus = ServiceBusHandler()
 app = Flask(__name__)
 
 # Configura tus credenciales usando variables de entorno
@@ -58,12 +60,11 @@ def webhook():
     # Generate a response based on the incoming message
     reply = generate_response(incoming_message)
 
-    # # Send the response back to the user
-    # send_response(reply, from_number)
+    service_bus.send_message(f"{from_number}|{incoming_message}")
 
     # Respond with TwiML to keep the conversation active
     response = MessagingResponse()
-    response.message(reply)
+    response.message("Recibido, procesando tu mensaje...")
 
     # # Log response sent back to Twilio
     # logging.info(f"Response sent back to Twilio: {reply}")
