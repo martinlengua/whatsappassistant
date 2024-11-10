@@ -23,23 +23,42 @@ auth_token = os.getenv("AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_NUMBER")
 client = Client(account_sid, auth_token)
 
+# Diccionario para almacenar los asistentes por número de teléfono
+user_assistants = {}
+
+# Diccionario para almacenar el contexto de cada número de teléfono (hilo de conversación)
+user_threads = {}
+
 # Inicializar el asistente con los datos desde las variables de entorno
-assistant = Assistant(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    assistant_id=os.getenv("ASSISTANT_ID"),
-    thread_id=os.getenv("THREAD_ID")
-)
-
-# Crear una cola para manejar los mensajes entrantes
-message_queue = queue.Queue()
-
-def generate_response(incoming_message):
+def get_assistant_for_user(user_id):
     """
-    Usa OpenAI para generar una respuesta basada en el mensaje recibido.
+    Obtiene o crea un asistente para un usuario, si no existe.
     """
-    logging.info(f"Received message: {incoming_message}")
+    if user_id not in user_assistants:
+        assistant = Assistant(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            assistant_id=os.getenv("ASSISTANT_ID"),
+            thread_id=os.getenv("THREAD_ID")
+        )
+        user_assistants[user_id] = assistant
+        # Inicializar un nuevo hilo para el usuario
+        user_threads[user_id] = os.getenv("THREAD_ID")  # Usa el thread_id predeterminado al inicio
+    return user_assistants[user_id]
+
+def generate_response(incoming_message, user_id):
+    """
+    Usa OpenAI para generar una respuesta basada en el mensaje recibido,
+    manteniendo el contexto del usuario por separado.
+    """
+    logging.info(f"Received message from {user_id}: {incoming_message}")
+
+    assistant = get_assistant_for_user(user_id)
+    thread_id = user_threads[user_id]
+
+    # Usar el thread_id del usuario para mantener su contexto
     respuesta = assistant.ask_question_memory(incoming_message)
-    logging.info(f"Generated response: {respuesta}")
+
+    logging.info(f"Generated response for {user_id}: {respuesta}")
     return respuesta
 
 def send_response(reply, from_number):
@@ -62,8 +81,8 @@ def process_message_queue():
             # Esperar hasta que haya un mensaje en la cola o el tiempo de espera se complete
             from_number, incoming_message = message_queue.get(timeout=5)
 
-            # Generar la respuesta para el mensaje inmediatamente
-            reply = generate_response(incoming_message)
+            # Generar la respuesta para el mensaje inmediatamente, con el contexto del usuario
+            reply = generate_response(incoming_message, from_number)
             
             # Enviar la respuesta de vuelta al usuario
             send_response(reply, from_number)
