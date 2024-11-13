@@ -23,44 +23,23 @@ auth_token = os.getenv("AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_NUMBER")
 client = Client(account_sid, auth_token)
 
-# Diccionario para almacenar los asistentes y contextos por número de teléfono
-user_assistants = {}
-user_threads = {}
+# Inicializar el asistente con los datos desde las variables de entorno
+assistant = Assistant(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    assistant_id=os.getenv("ASSISTANT_ID"),
+    thread_id=os.getenv("THREAD_ID")
+)
+
+# Crear una cola para manejar los mensajes entrantes
 message_queue = queue.Queue()
 
-# Inicializar el asistente con datos y un `thread_id` único para cada usuario
-def get_assistant_for_user(user_id):
+def generate_response(incoming_message):
     """
-    Obtiene o crea un asistente para un usuario si no existe, asignando un `thread_id` único.
+    Usa OpenAI para generar una respuesta basada en el mensaje recibido.
     """
-    if user_id not in user_assistants:
-        # Genera un `thread_id` único usando el número de teléfono del usuario o similar
-        unique_thread_id = f"thread_{user_id}"
-
-        # Crear un nuevo asistente y guardar el `thread_id`
-        assistant = Assistant(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            assistant_id=os.getenv("ASSISTANT_ID"),
-            thread_id=unique_thread_id
-        )
-        
-        user_assistants[user_id] = assistant
-        user_threads[user_id] = unique_thread_id
-    return user_assistants[user_id]
-
-def generate_response(incoming_message, user_id):
-    """
-    Genera una respuesta con OpenAI usando el `thread_id` del usuario para mantener el contexto.
-    """
-    logging.info(f"Received message from {user_id}: {incoming_message}")
-
-    assistant = get_assistant_for_user(user_id)
-    thread_id = user_threads[user_id]
-
-    # Usar `thread_id` específico del usuario para mantener su contexto
+    logging.info(f"Received message: {incoming_message}")
     respuesta = assistant.ask_question_memory(incoming_message)
-
-    logging.info(f"Generated response for {user_id}: {respuesta}")
+    logging.info(f"Generated response: {respuesta}")
     return respuesta
 
 def send_response(reply, from_number):
@@ -80,11 +59,20 @@ def process_message_queue():
     """
     while True:
         try:
+            # Esperar hasta que haya un mensaje en la cola o el tiempo de espera se complete
             from_number, incoming_message = message_queue.get(timeout=5)
-            reply = generate_response(incoming_message, from_number)
+
+            # Generar la respuesta para el mensaje inmediatamente
+            reply = generate_response(incoming_message)
+            
+            # Enviar la respuesta de vuelta al usuario
             send_response(reply, from_number)
+            
+            # Marcar el mensaje como procesado
             message_queue.task_done()
+
         except queue.Empty:
+            # Si la cola está vacía, esperar 5 segundos antes de revisar nuevamente
             logging.info("No hay mensajes en la cola. Esperando 5 segundos...")
             time.sleep(5)
 
@@ -96,9 +84,15 @@ def webhook():
     incoming_message = request.form.get("Body", "")
     from_number = request.form.get("From", "")
 
+    # Log incoming message and sender info
     logging.info(f"Incoming message from {from_number}: {incoming_message}")
+
+    # Añadir el mensaje a la cola para ser procesado
     message_queue.put((from_number, incoming_message))
+
+    # Responder inmediatamente para confirmar recepción a Twilio
     response = MessagingResponse()
+
     return str(response)
 
 if __name__ == "__main__":
