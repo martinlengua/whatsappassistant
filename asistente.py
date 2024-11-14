@@ -99,7 +99,7 @@ def webhook():
 
     # Añadir el mensaje a la cola para ser procesado
     message_queue.put((from_number, incoming_message))
-    logging.info(f"anade mensaje de cola")
+    logging.info(f"anade mensaje de cola av er que sale")
     reply = generate_response(incoming_message)
     logging.info(f"hace reply")
 
