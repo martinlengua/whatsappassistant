@@ -22,8 +22,7 @@ account_sid = os.getenv("ACCOUNT_SID")
 auth_token = os.getenv("AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_NUMBER")
 client = Client(account_sid, auth_token)
-api_key = os.getenv("OPENAI_API_KEY")
-assistant_id = os.getenv("ASSISTANT_ID")
+
 
 # Diccionario para almacenar los asistentes y contextos por número de teléfono
 user_assistants = {}
@@ -36,9 +35,10 @@ def get_assistant_for_user(user_id):
     """
     if user_id not in user_assistants:
         # Crea una nueva instancia de Assistant sin un thread_id específico
+        api_key = os.getenv("OPENAI_API_KEY")
+        assistant_id = os.getenv("ASSISTANT_ID")
         assistant = Assistant(api_key=api_key, assistant_id=assistant_id)
         user_assistants[user_id] = assistant
-
 
     return user_assistants[user_id]
 
@@ -105,7 +105,7 @@ def webhook():
     # Responder inmediatamente para confirmar recepción a Twilio
     response = MessagingResponse()
     response.message(reply)
-
+    response.message("Recibido, procesando su mensaje...")
     return str(response)
 
 if __name__ == "__main__":
