@@ -23,21 +23,35 @@ auth_token = os.getenv("AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_NUMBER")
 client = Client(account_sid, auth_token)
 
-# Inicializar el asistente con los datos desde las variables de entorno
-assistant = Assistant(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    assistant_id=os.getenv("ASSISTANT_ID"),
-    thread_id=os.getenv("THREAD_ID")
-)
-
-# Crear una cola para manejar los mensajes entrantes
+# Diccionario para almacenar los asistentes y contextos por número de teléfono
+user_assistants = {}
 message_queue = queue.Queue()
 
-def generate_response(incoming_message):
+
+def get_assistant_for_user(user_id):
+    """
+    Obtiene o crea un asistente para un usuario si no existe, asignando un `thread_id` único.
+    """
+    if user_id not in user_assistants:
+        # Genera un `thread_id` único usando el número de teléfono del usuario
+        unique_thread_id = f"thread_{user_id}"
+
+        # Crear un nuevo asistente y guardar el `thread_id`
+        assistant = Assistant(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            assistant_id=os.getenv("ASSISTANT_ID"),
+            thread_id=unique_thread_id
+        )
+        user_assistants[user_id] = assistant
+
+    return user_assistants[user_id]
+
+def generate_response(incoming_message, from_number):
     """
     Usa OpenAI para generar una respuesta basada en el mensaje recibido.
     """
     logging.info(f"Received message: {incoming_message}")
+    assistant = get_assistant_for_user(from_number)
     respuesta = assistant.ask_question_memory(incoming_message)
     logging.info(f"Generated response: {respuesta}")
     return respuesta
@@ -63,7 +77,7 @@ def process_message_queue():
             from_number, incoming_message = message_queue.get(timeout=5)
 
             # Generar la respuesta para el mensaje inmediatamente
-            reply = generate_response(incoming_message)
+            reply = generate_response(incoming_message, from_number)
             
             # Enviar la respuesta de vuelta al usuario
             send_response(reply, from_number)
@@ -90,8 +104,11 @@ def webhook():
     # Añadir el mensaje a la cola para ser procesado
     message_queue.put((from_number, incoming_message))
 
+    reply = generate_response(incoming_message)
+
     # Responder inmediatamente para confirmar recepción a Twilio
     response = MessagingResponse()
+    response.message(reply)
 
     return str(response)
 
