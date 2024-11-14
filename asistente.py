@@ -22,6 +22,8 @@ account_sid = os.getenv("ACCOUNT_SID")
 auth_token = os.getenv("AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_NUMBER")
 client = Client(account_sid, auth_token)
+api_key = os.getenv("OPENAI_API_KEY")
+assistant_id = os.getenv("ASSISTANT_ID")
 
 # Diccionario para almacenar los asistentes y contextos por número de teléfono
 user_assistants = {}
@@ -33,16 +35,10 @@ def get_assistant_for_user(user_id):
     Obtiene o crea un asistente para un usuario si no existe, asignando un `thread_id` único.
     """
     if user_id not in user_assistants:
-        # Genera un `thread_id` único usando el número de teléfono del usuario
-        unique_thread_id = f"thread_{user_id}"
-
-        # Crear un nuevo asistente y guardar el `thread_id`
-        assistant = Assistant(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            assistant_id=os.getenv("ASSISTANT_ID"),
-            thread_id=unique_thread_id
-        )
+        # Crea una nueva instancia de Assistant sin un thread_id específico
+        assistant = Assistant(api_key=api_key, assistant_id=assistant_id)
         user_assistants[user_id] = assistant
+
 
     return user_assistants[user_id]
 

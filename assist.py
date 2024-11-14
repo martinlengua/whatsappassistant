@@ -4,17 +4,30 @@ from pygame import mixer
 import os
 
 class Assistant:
-    def __init__(self, api_key, assistant_id, thread_id):
+    def __init__(self, api_key, assistant_id, thread_id=None):
         self.client = OpenAI(api_key=api_key, default_headers={"OpenAI-Beta": "assistants=v2"})
         self.assistant_id = assistant_id
-        self.thread_id = thread_id
         self.assistant = self.client.beta.assistants.retrieve(assistant_id)
-        self.thread = self.client.beta.threads.retrieve(thread_id)
-        #mixer.init()
+        self.thread_id = thread_id if thread_id else f"thread_{uuid.uuid4().hex[:8]}"  # Genera un thread_id único si no se proporciona uno
+        self.thread = None  # Inicialmente no hay thread cargado
+        # mixer.init()  # Si no usas el mixer, puedes dejarlo comentado o quitarlo
+
+    def initialize_thread(self):
+        """Crea o recupera un hilo (thread) según el thread_id."""
+        try:
+            # Intenta obtener el thread existente, si ya se creó anteriormente
+            self.thread = self.client.beta.threads.retrieve(self.thread_id)
+        except openai.NotFoundError:
+            # Si el thread no existe, crearlo
+            self.thread = self.client.beta.threads.create(thread_id=self.thread_id, assistant_id=self.assistant.id)
 
     def ask_question_memory(self, question):
         """Envía una pregunta al asistente y espera la respuesta con memoria de contexto."""
         try:
+            if not self.thread:
+                self.initialize_thread()  # Asegura que el thread esté inicializado
+
+        """Envía una pregunta al asistente y espera la respuesta con memoria de contexto."""
             self.client.beta.threads.messages.create(self.thread.id, role="user", content=question)
             run = self.client.beta.threads.runs.create(thread_id=self.thread.id, assistant_id=self.assistant.id)
             
