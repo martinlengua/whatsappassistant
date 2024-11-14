@@ -99,15 +99,15 @@ def webhook():
 
     # Añadir el mensaje a la cola para ser procesado
     message_queue.put((from_number, incoming_message))
-    logging.info(f"añade mensaje de cola}")
+    logging.info(f"añade mensaje de cola")
     reply = generate_response(incoming_message)
-    logging.info(f"hace reply}")
+    logging.info(f"hace reply")
 
     # Responder inmediatamente para confirmar recepción a Twilio
     response = MessagingResponse()
-    logging.info(f"messagging response}")
+    logging.info(f"messagging response")
     response.message(reply)
-    logging.info(f"repply de nuevo}")
+    logging.info(f"repply de nuevo")
     response.message("Recibido, procesando su mensaje...")
     return str(response)
 
