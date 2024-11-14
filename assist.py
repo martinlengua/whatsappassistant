@@ -22,7 +22,7 @@ class Assistant:
             self.thread = self.client.beta.threads.create(thread_id=self.thread_id, assistant_id=self.assistant.id)
 
     def ask_question_memory(self, question):
-        """Envía una pregunta al asistente y espera la respuesta con memoria de contexto."""
+        #"""Envía una pregunta al asistente y espera la respuesta con memoria de contexto."""
         try:
             if not self.thread:
                 self.initialize_thread()  # Asegura que el thread esté inicializado
@@ -43,7 +43,7 @@ class Assistant:
             return f"Error al consultar al asistente: {str(e)}"
     
     def generate_tts(self, sentence, speech_file_path="speech.mp3"):
-        """Genera el archivo de TTS a partir de una oración."""
+        #"""Genera el archivo de TTS a partir de una oración."""
         try:
             response = self.client.audio.speech.create(model="tts-1", voice="echo", input=sentence)
             response.stream_to_file(speech_file_path)
@@ -52,7 +52,7 @@ class Assistant:
             return f"Error al generar TTS: {str(e)}"
     
     def play_sound(self, file_path):
-        """Reproduce un archivo de sonido."""
+        #"""Reproduce un archivo de sonido."""
         try:
             mixer.music.load(file_path)
             mixer.music.play()
@@ -65,7 +65,7 @@ class Assistant:
             return f"Error al reproducir sonido: {str(e)}"
     
     def TTS(self, text):
-        """Convierte texto en voz y lo reproduce."""
+        #"""Convierte texto en voz y lo reproduce."""
         try:
             speech_file_path = self.generate_tts(text)
             if "Error" not in speech_file_path:
