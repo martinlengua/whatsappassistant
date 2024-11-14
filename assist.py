@@ -26,8 +26,6 @@ class Assistant:
         try:
             if not self.thread:
                 self.initialize_thread()  # Asegura que el thread esté inicializado
-
-        """Envía una pregunta al asistente y espera la respuesta con memoria de contexto."""
             self.client.beta.threads.messages.create(self.thread.id, role="user", content=question)
             run = self.client.beta.threads.runs.create(thread_id=self.thread.id, assistant_id=self.assistant.id)
             
