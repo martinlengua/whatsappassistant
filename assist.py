@@ -13,7 +13,7 @@ class Assistant:
         # mixer.init()  # Si no usas el mixer, puedes dejarlo comentado o quitarlo
 
     def initialize_thread(self):
-        """Crea o recupera un hilo (thread) según el thread_id."""
+        #"""Crea o recupera un hilo (thread) según el thread_id."""
         try:
             # Intenta obtener el thread existente, si ya se creó anteriormente
             self.thread = self.client.beta.threads.retrieve(self.thread_id)
